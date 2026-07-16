@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>منهج الأمن السيبراني الأخلاقي</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+  :root{
+    --bg:#0b0f14;
+    --panel:#111820;
+    --panel-2:#0e141b;
+    --line:#22303c;
+    --text:#dbe4ea;
+    --muted:#7c8a97;
+    --amber:#e0a458;
+    --cyan:#5fb8c9;
+    --green:#7fae7a;
+    --red:#c97a6d;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:
+      radial-gradient(1200px 600px at 85% -10%, rgba(95,184,201,0.06), transparent 60%),
+      radial-gradient(900px 500px at -10% 20%, rgba(224,164,88,0.05), transparent 55%),
+      var(--bg);
+    color:var(--text);
+    font-family:'IBM Plex Sans Arabic', sans-serif;
+    line-height:1.7;
+    min-height:100vh;
+  }
+  .mono{font-family:'JetBrains Mono', monospace;}
+  a{color:inherit; text-decoration:none;}
+
+  /* ===== Top bar ===== */
+  .topbar{
+    position:sticky; top:0; z-index:20;
+    background:rgba(11,15,20,0.92);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+    padding:16px 20px;
+  }
+  .topbar-inner{
+    max-width:900px; margin:0 auto;
+    display:flex; align-items:center; gap:12px;
+  }
+  .brand{
+    font-weight:700; font-size:15px; color:#f2f6f9;
+    display:flex; align-items:center; gap:8px;
+  }
+  .brand .dot{width:7px;height:7px;border-radius:50%;background:var(--green); box-shadow:0 0 8px var(--green);}
+  .crumbs{
+    font-family:'JetBrains Mono', monospace;
+    direction:ltr; text-align:right;
+    font-size:11.5px; color:var(--muted);
+    margin-right:auto;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+    max-width:60%;
+  }
+  .crumbs b{color:var(--cyan); font-weight:500;}
+
+  main{max-width:900px; margin:0 auto; padding:32px 20px 100px;}
+
+  /* ===== Views ===== */
+  .view{display:none;}
+  .view.active{display:block; animation:fade .25s ease;}
+  @keyframes fade{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+
+  .page-title{font-size:24px; font-weight:700; color:#f2f6f9; margin-bottom:6px;}
+  .page-sub{color:var(--muted); font-size:14px; margin-bottom:28px;}
+
+  .back-link{
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:13px; color:var(--cyan); margin-bottom:20px;
+    cursor:pointer; font-family:'JetBrains Mono', monospace;
+  }
+  .back-link:hover{color:var(--amber);}
+
+  /* card list (reused for phases / lessons / sections) */
+  .card{
+    display:flex; align-items:center; gap:16px;
+    padding:18px 18px;
+    border:1px solid var(--line);
+    border-radius:12px;
+    background:linear-gradient(180deg, var(--panel), var(--panel-2));
+    margin-bottom:12px;
+    cursor:pointer;
+    transition:border-color .15s ease, transform .15s ease;
+  }
+  .card:hover{border-color:var(--cyan); transform:translateX(-2px);}
+  .card.locked{opacity:.5; cursor:default;}
+  .card.locked:hover{border-color:var(--line); transform:none;}
+
+  .card .badge{
+    font-family:'JetBrains Mono', monospace;
+    font-size:13px; font-weight:700;
+    color:var(--bg); background:var(--amber);
+    width:38px; height:38px; border-radius:9px;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0; direction:ltr;
+  }
+  .card.locked .badge{background:var(--line); color:var(--muted);}
+  .card .info{flex:1; min-width:0;}
+  .card .info .t{font-size:15px; font-weight:600; color:var(--text); margin-bottom:3px;}
+  .card .info .d{font-size:12.5px; color:var(--muted);}
+  .card .arrow{color:var(--muted); font-size:18px; flex-shrink:0;}
+  .card .status{
+    font-family:'JetBrains Mono', monospace; font-size:10px;
+    padding:3px 9px; border-radius:5px; border:1px solid var(--line);
+    color:var(--muted); flex-shrink:0; direction:ltr;
+  }
+  .card .status.ready{color:var(--green); border-color:var(--green);}
+
+  /* section content page */
+  .content-box{
+    border:1px solid var(--line);
+    border-radius:12px;
+    background:var(--panel);
+    padding:26px 24px;
+    font-size:15px;
+    color:var(--text);
+  }
+  .content-box h3{color:var(--amber); font-size:16px; margin:18px 0 8px;}
+  .content-box h3:first-child{margin-top:0;}
+  .content-box p{margin-bottom:12px; color:#c7d1d9;}
+  .content-box ul{margin:0 0 12px 0; padding-right:20px;}
+  .content-box li{margin-bottom:6px; color:#c7d1d9;}
+  .content-box code{
+    font-family:'JetBrains Mono', monospace;
+    background:rgba(95,184,201,0.1);
+    color:var(--cyan);
+    padding:2px 6px; border-radius:4px; font-size:13px;
+    direction:ltr; display:inline-block;
+  }
+  .term-row{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.05);
+  }
+  .term-row:last-child{border-bottom:none;}
+  .term-row .en{font-family:'JetBrains Mono', monospace; color:var(--cyan); font-size:13px; direction:ltr;}
+  .term-row .ar{color:var(--text); font-size:14px;}
+
+  .empty-state{
+    text-align:center; padding:60px 20px; color:var(--muted);
+  }
+  .empty-state .icon{font-size:32px; margin-bottom:14px; opacity:.5;}
+  .empty-state .msg{font-size:14px;}
+
+  /* section nav pills inside lesson page */
+  .sec-list .card .badge{background:var(--panel-2); border:1px solid var(--line); color:var(--cyan);}
+  .sec-list .card.locked .badge{color:var(--muted);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <a href="#/" class="brand" onclick="go('home')"><span class="dot"></span>مسار الأمن السيبراني</a>
+    <div class="crumbs mono" id="crumbs">/ home</div>
+  </div>
+</div>
+
+<main>
+
+  <!-- ================= HOME: phases ================= -->
+  <section class="view active" id="view-home">
+    <div class="page-title">فهرس المنهج الكامل</div>
+    <div class="page-sub">اختر مرحلة لعرض دروسها. 47 درسًا موزعة على 7 مراحل.</div>
+    <div id="phase-list"></div>
+  </section>
+
+  <!-- ================= PHASE: lessons ================= -->
+  <section class="view" id="view-phase">
+    <div class="back-link" onclick="go('home')">→ رجوع إلى المراحل</div>
+    <div class="page-title" id="phase-title"></div>
+    <div class="page-sub" id="phase-sub"></div>
+    <div id="lesson-list"></div>
+  </section>
+
+  <!-- ================= LESSON: sections ================= -->
+  <section class="view" id="view-lesson">
+    <div class="back-link" id="lesson-back">→ رجوع إلى الدروس</div>
+    <div class="page-title" id="lesson-title"></div>
+    <div class="page-sub" id="lesson-sub"></div>
+    <div id="section-list" class="sec-list"></div>
+  </section>
+
+  <!-- ================= SECTION: actual content ================= -->
+  <section class="view" id="view-section">
+    <div class="back-link" id="section-back">→ رجوع إلى أقسام الدرس</div>
+    <div class="page-title" id="section-title"></div>
+    <div class="content-box" id="section-content"></div>
+  </section>
+
+</main>
+
+<script>
+/* ============================================================
+   قاعدة بيانات المنهج — كل درس جديد يُضاف هنا لاحقًا كعنصر
+   داخل مصفوفة lessons، بنفس بنية section الموجودة في lesson 1.
+   الدروس التي لا تملك sections تظهر تلقائيًا "قريبًا".
+   ============================================================ */
+const SECTION_TYPES = [
+  {key:'explain', label:'الشرح المفصل'},
+  {key:'terms',   label:'المصطلحات (EN/AR)'},
+  {key:'commands',label:'الأوامر الأساسية'},
+  {key:'attack',  label:'كيف يستغلها المهاجمون'},
+  {key:'ex1',     label:'تمرين محلول'},
+  {key:'ex2',     label:'تمرين غير محلول'},
+];
+
+const COURSE = [
+  { id:1, title:'الأساسيات — الشبكات والأنظمة', desc:'حجر الزاوية. لا يُختصر هذا القسم.', lessons:[
+    {id:1,title:'مقدمة إلى الحوسبة وكيف تعمل الأنظمة'},
+    {id:2,title:'نموذج OSI السبع طبقات بالتفصيل'},
+    {id:3,title:'بروتوكول TCP/IP وكيف تتواصل الأجهزة'},
+    {id:4,title:'عناوين IP — IPv4 وIPv6 وSubnetting'},
+    {id:5,title:'DNS — نظام أسماء النطاقات'},
+    {id:6,title:'DHCP وإدارة عناوين الشبكة'},
+    {id:7,title:'HTTP/HTTPS وكيف يعمل الويب'},
+    {id:8,title:'FTP، SSH، SMTP وبروتوكولات نقل البيانات'},
+    {id:9,title:'أساسيات Linux — الأوامر والصلاحيات'},
+    {id:10,title:'أساسيات Windows ومقدمة Active Directory'},
+    {id:11,title:'أساسيات البرمجة بـ Python للأمن السيبراني'},
+    {id:12,title:'Bash Scripting وPowerShell أساسي'},
+    {id:13,title:'أدوات الشبكات: Wireshark, Nmap, Ping, Traceroute'},
+    {id:14,title:'الجدران النارية (Firewalls) والـ VPN'},
+    {id:15,title:'مراجعة شاملة لمرحلة الأساسيات + اختبار تقييمي'},
+  ]},
+  { id:2, title:'مفاهيم الأمن السيبراني العامة', desc:'المبادئ التي تُبنى عليها كل قرارات الحماية والهجوم.', lessons:[
+    {id:16,title:'ثالوث CIA — السرية، السلامة، التوافر'},
+    {id:17,title:'أساسيات التشفير (Cryptography)'},
+    {id:18,title:'الشهادات الرقمية والبنية التحتية للمفاتيح (PKI)'},
+    {id:19,title:'المصادقة والتفويض (Authentication vs Authorization)'},
+    {id:20,title:'أنواع البرمجيات الخبيثة (Malware) — مفاهيميًا'},
+    {id:21,title:'الهندسة الاجتماعية والتصيّد (Phishing)'},
+    {id:22,title:'إطار عمل MITRE ATT&CK'},
+    {id:23,title:'OWASP Top 10 — أهم ثغرات تطبيقات الويب'},
+    {id:24,title:'إدارة المخاطر السيبرانية'},
+  ]},
+  { id:3, title:'بناء المختبر الشخصي (Home Lab)', desc:'بيئتك المعزولة — هنا يبدأ التطبيق الفعلي.', lessons:[
+    {id:25,title:'تثبيت وإعداد VirtualBox / VMware'},
+    {id:26,title:'تثبيت وإعداد Kali Linux'},
+    {id:27,title:'تثبيت أنظمة هدف: Metasploitable وDVWA'},
+    {id:28,title:'إعداد شبكة معزولة آمنة (Isolated Network)'},
+  ]},
+  { id:4, title:'اختبار الاختراق العملي', desc:'تُطبَّق حصرًا على أنظمة تملكها أو تملك إذنًا لاختبارها.', lessons:[
+    {id:29,title:'الاستطلاع السلبي (Passive Recon / OSINT)'},
+    {id:30,title:'الاستطلاع النشط والمسح بـ Nmap'},
+    {id:31,title:'تحليل الثغرات (Vulnerability Scanning)'},
+    {id:32,title:'مقدمة إلى Metasploit Framework'},
+    {id:33,title:'ثغرات الويب: SQL Injection'},
+    {id:34,title:'ثغرات الويب: XSS'},
+    {id:35,title:'تصعيد الصلاحيات — Linux'},
+    {id:36,title:'تصعيد الصلاحيات — Windows'},
+    {id:37,title:'الحركة الجانبية (Lateral Movement)'},
+  ]},
+  { id:5, title:'التخصص', desc:'لا أحد يتقن كل شيء بعمق — هنا تختار مسارك.', lessons:[
+    {id:38,title:'أمن تطبيقات الويب المتقدم'},
+    {id:39,title:'اختبار اختراق الشبكات'},
+    {id:40,title:'أمن الأجهزة المحمولة (Android / iOS)'},
+    {id:41,title:'أمن البيئات السحابية (AWS / Azure)'},
+  ]},
+  { id:6, title:'الدفاع والاحتراف (Blue Team)', desc:'المهارة الأكثر طلبًا في سوق العمل.', lessons:[
+    {id:42,title:'أساسيات الاستجابة للحوادث'},
+    {id:43,title:'كتابة تقارير اختبار الاختراق الاحترافية'},
+    {id:44,title:'أساسيات مركز عمليات الأمن (SOC)'},
+  ]},
+  { id:7, title:'الشهادات المهنية', desc:'التوثيق الرسمي الذي يفتح أبواب التوظيف.', lessons:[
+    {id:45,title:'التحضير لشهادة CompTIA Security+'},
+    {id:46,title:'التحضير لشهادة CEH'},
+    {id:47,title:'التحضير لشهادة OSCP'},
+  ]},
+];
+
+/* محتوى الدروس الفعلي يُضاف هنا: LESSON_CONTENT[lessonId] = {explain:'html', terms:[[en,ar],...], commands:'html', attack:'html', ex1:'html', ex2:'html'} */
+const LESSON_CONTENT = {
+  // فارغ حاليًا — سيُملأ درسًا بعد درس
+};
+
+/* ============================================================
+   محرك التنقل
+   ============================================================ */
+let state = {phase:null, lesson:null, section:null};
+
+function findPhase(id){return COURSE.find(p=>p.id===id);}
+function findLesson(id){for(const p of COURSE){const l=p.lessons.find(x=>x.id===id); if(l) return {lesson:l, phase:p};} return null;}
+
+function setCrumbs(text){document.getElementById('crumbs').innerHTML = text;}
+
+function showView(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({top:0, behavior:'instant'});
+}
+
+function go(target){
+  if(target==='home'){
+    renderHome();
+    setCrumbs('/ <b>home</b>');
+    showView('view-home');
+  }
+}
+
+function openPhase(pid){
+  state.phase = pid;
+  const p = findPhase(pid);
+  document.getElementById('phase-title').textContent = p.title;
+  document.getElementById('phase-sub').textContent = p.desc;
+  const list = document.getElementById('lesson-list');
+  list.innerHTML = '';
+  p.lessons.forEach(l=>{
+    const has = !!LESSON_CONTENT[l.id];
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <div class="badge">${String(l.id).padStart(2,'0')}</div>
+      <div class="info"><div class="t">${l.title}</div><div class="d">${has ? '6 أقسام جاهزة' : 'لم يُنشأ بعد'}</div></div>
+      <div class="status ${has?'ready':''}">${has?'READY':'SOON'}</div>
+      <div class="arrow">‹</div>`;
+    card.onclick = ()=>openLesson(l.id);
+    list.appendChild(card);
+  });
+  setCrumbs(`/ <b>${p.title}</b>`);
+  showView('view-phase');
+}
+
+function openLesson(lid){
+  state.lesson = lid;
+  const found = findLesson(lid);
+  const {lesson, phase} = found;
+  document.getElementById('lesson-title').textContent = `${String(lesson.id).padStart(2,'0')} · ${lesson.title}`;
+  document.getElementById('lesson-sub').textContent = 'اختر قسمًا لعرض محتواه';
+  document.getElementById('lesson-back').onclick = ()=>openPhase(phase.id);
+
+  const list = document.getElementById('section-list');
+  list.innerHTML = '';
+  const content = LESSON_CONTENT[lid];
+
+  if(!content){
+    list.innerHTML = `<div class="empty-state"><div class="icon">◌</div><div class="msg">هذا الدرس لم يُنشأ بعد. سيتم إضافة أقسامه الستة تباعًا.</div></div>`;
+  } else {
+    SECTION_TYPES.forEach((s,i)=>{
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <div class="badge">${i+1}</div>
+        <div class="info"><div class="t">${s.label}</div></div>
+        <div class="arrow">‹</div>`;
+      card.onclick = ()=>openSection(lid, s.key);
+      list.appendChild(card);
+    });
+  }
+  setCrumbs(`/ ${phase.title} / <b>${lesson.title}</b>`);
+  showView('view-lesson');
+}
+
+function openSection(lid, key){
+  const found = findLesson(lid);
+  const {lesson, phase} = found;
+  const content = LESSON_CONTENT[lid];
+  const meta = SECTION_TYPES.find(s=>s.key===key);
+
+  document.getElementById('section-title').textContent = meta.label;
+  document.getElementById('section-back').onclick = ()=>openLesson(lid);
+
+  const box = document.getElementById('section-content');
+  if(key==='terms' && content.terms){
+    box.innerHTML = content.terms.map(([en,ar])=>`<div class="term-row"><span class="en">${en}</span><span class="ar">${ar}</span></div>`).join('');
+  } else {
+    box.innerHTML = content[key] || '<div class="empty-state"><div class="msg">لا يوجد محتوى لهذا القسم بعد.</div></div>';
+  }
+  setCrumbs(`/ ${phase.title} / ${lesson.title} / <b>${meta.label}</b>`);
+  showView('view-section');
+}
+
+function renderHome(){
+  const list = document.getElementById('phase-list');
+  list.innerHTML = '';
+  COURSE.forEach(p=>{
+    const doneCount = p.lessons.filter(l=>LESSON_CONTENT[l.id]).length;
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <div class="badge">${String(p.id).padStart(2,'0')}</div>
+      <div class="info"><div class="t">${p.title}</div><div class="d">${p.lessons.length} دروس · ${doneCount} جاهز</div></div>
+      <div class="arrow">‹</div>`;
+    card.onclick = ()=>openPhase(p.id);
+    list.appendChild(card);
+  });
+}
+
+renderHome();
+</script>
+
+</body>
+</html>
